@@ -1,14 +1,15 @@
 package org.lab.exam;
 
+import java.util.LinkedHashSet;
 import java.util.TreeSet;
 
 public class Tracer {
-    private TreeSet<Location> route;
+    private LinkedHashSet<Location> route;
     private int[][] map;
 
     public Tracer(int n, int m){
         map = new int[n][m];
-        route = new TreeSet<Location>();
+        route = new LinkedHashSet<Location>();
     }
     public boolean isLandVisited(int i, int j) {
         return map[i][j] == 1;
@@ -17,7 +18,7 @@ public class Tracer {
         map[i][j] = 1;
     }
 
-    public TreeSet<Location> getRoute() {
+    public LinkedHashSet<Location> getRoute() {
         return route;
     }
 }

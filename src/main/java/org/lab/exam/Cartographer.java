@@ -41,9 +41,9 @@ public class Cartographer {
                         i = land.getStart().getX();
                         j = land.getStart().getY();
                         land = null;
-                    }else {
+                    }else{
                         //Jump to the neighbor.
-                        Location location = tracer.getRoute().pollLast();
+                        Location location = tracer.getRoute().removeLast();
                         i = location.getX();
                         j = location.getY();
                     }
@@ -78,12 +78,13 @@ public class Cartographer {
     }
 
     private void processLand(int i, int j){
-        land.setClosed(land.isClosed()
-                && isClosedFromRightLand(i, j)
-                && isClosedFromBottomLand(i, j)
-                && isClosedFromLeftLand(i, j)
-                && isClosedFromTopLand(i, j)
-        );
+        boolean test = true;
+        test &= isClosedFromRightLand(i, j);
+        test &= isClosedFromBottomLand(i, j);
+        test &= isClosedFromLeftLand(i, j);
+        test &= isClosedFromTopLand(i, j);
+        test &= land.isClosed();
+        land.setClosed(test);
     }
 
     private boolean isClosedFromRightLand(int i, int j){
