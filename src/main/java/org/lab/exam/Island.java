@@ -1,10 +1,10 @@
 package org.lab.exam;
 
-public class Land {
+public class Island {
     private boolean isClosed = true;
     private Location start;
 
-    public Land(Location start){
+    public Island(Location start){
         this.isClosed = true;
         this.start = start;
     }
@@ -22,6 +22,5 @@ public class Land {
     }
 
     public void setStart(Location start) {
-        this.start = start;
     }
 }

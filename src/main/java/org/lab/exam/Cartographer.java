@@ -1,49 +1,45 @@
 package org.lab.exam;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
 
 public class Cartographer {
-    int[][] map;
-    Tracer tracer;
-    Land land;
+    private int[][] map;
+    private int[][] log;
     private int n;
     private int m;
+    Island island;
+    private LinkedHashSet<Location> locations;
+    Location location;
 
-    public int getClosedIslandsCount(int[][] pMap){
-        map = pMap;
-        if(!isMapValid()){
+    public int countClosedIslands(int[][] pMap){
+        if(!isMapValid(pMap)){
             return 0;
         }
 
         int count = 0;
-        tracer = new Tracer(n, m);
-
-        for(int i = 0; i < n; i+= (Objects.isNull(land)? 1 : 0)){
-            for(int j = 0; j < m; j+= (Objects.isNull(land)? 1 : 0)) {
-                if(map[i][j]  == 0 || (tracer.isLandVisited(i,j))){
+        for (int i = 0; i < n; i += (exploringIsland() ? 0 : 1)) {
+            for (int j = 0; j < m; j += (exploringIsland() ? 0 : 1)) {
+                if (isWather(i, j) || (isVisited(i, j))) {
                     continue;
-                }else if(map[i][j]  == 1){
-                    tracer.visitLand(i,j);
+                } else if (isLand(i, j)) {
+                    visit(i, j);
 
-                    //Start new land tracing
-                    if(Objects.isNull(land)) {
-                        land = new Land(new Location(i, j));
+                    if (Objects.isNull(island)) {
+                        island = new Island(new Location(i, j));
                     }
-                    
-                    processLand(i,j);
 
-                    //Loop control
-                    if(tracer.getRoute().isEmpty()){
-                        //If no more lands for current island to explore. Check state and continue
-                        if(land.isClosed()){
+                    analyzeLand(i, j);
+
+                    if (locations.isEmpty()) {
+                        if (island.isClosed()) {
                             count++;
                         }
-                        i = land.getStart().getX();
-                        j = land.getStart().getY();
-                        land = null;
-                    }else{
-                        //Jump to the neighbor.
-                        Location location = tracer.getRoute().removeLast();
+                        i = island.getStart().getX();
+                        j = island.getStart().getY();
+                        island = null;
+                    } else {
+                        location = locations.removeLast();
                         i = location.getX();
                         j = location.getY();
                     }
@@ -51,9 +47,11 @@ public class Cartographer {
             }
         }
         return count;
+
     }
 
-    private boolean isMapValid(){
+    private boolean isMapValid(int[][] pMap){
+        this.map = pMap;
         if(Objects.isNull(map)){
             return false;
         }
@@ -68,27 +66,49 @@ public class Cartographer {
             return false;
         }
 
-        //Not matrix bounds
         for(int i = 0; i < n; i++){
             if(map[i].length != m){
                 return false;
             }
         }
+
+        log = new int[n][m];
+        locations = new LinkedHashSet<Location>();
         return true;
     }
 
-    private void processLand(int i, int j){
+    private boolean exploringIsland(){
+        return !Objects.isNull(island);
+    }
+
+    private boolean isLand(int i, int j){
+        return map[i][j] == 1;
+    }
+
+    private boolean isWather(int i, int j){
+        return map[i][j] == 0;
+    }
+
+    private boolean isVisited(int i, int j) {
+        return log[i][j] == 1;
+    }
+
+    public void visit(int i, int j) {
+        log[i][j] = 1;
+    }
+
+    private void analyzeLand(int i, int j){
         boolean test = true;
         test &= isClosedFromRightLand(i, j);
         test &= isClosedFromBottomLand(i, j);
         test &= isClosedFromLeftLand(i, j);
         test &= isClosedFromTopLand(i, j);
-        test &= land.isClosed();
-        land.setClosed(test);
+        test &= island.isClosed();
+        island.setClosed(test);
     }
 
     private boolean isClosedFromRightLand(int i, int j){
-       return isClosingLand(i, j+1);
+        return isClosingLand(i, j+1);
     }
 
     private boolean isClosedFromBottomLand(int i, int j){
@@ -105,12 +125,11 @@ public class Cartographer {
 
     private boolean isClosingLand(int i, int j){
         try{
-            int land = map[i][j];
-            if(land == 0 || tracer.isLandVisited(i,j)){
+            if(isWather(i,j) || isVisited(i,j)){
                 return true;
             }
-            if(land == 1){
-                tracer.getRoute().add(new Location(i, j));
+            if(isLand(i,j)){
+                locations.add(new Location(i, j));
                 return true;
             }
         }

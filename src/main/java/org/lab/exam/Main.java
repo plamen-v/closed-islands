@@ -4,11 +4,11 @@ import java.util.LinkedHashSet;
 
 public class Main {
     public static void main(String[] args) {
-        try {
+              try {
             if (args.length > 0) {
                 int[][] map = InputReader.read(args[0]);
                 Cartographer cartographer = new Cartographer();
-                System.out.println(cartographer.getClosedIslandsCount(map));
+                System.out.println(cartographer.countClosedIslands(map));
             } else {
                 System.out.println("Please provide the path to the input file as parameter.");
                 System.out.println("Example:");
